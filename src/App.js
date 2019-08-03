@@ -17,31 +17,31 @@ class App extends Component {
     this.state = {
       characters: []
     }
-    this.addCharacter = this.addCharacter.bind(this);
-    this.removeCharacter = this.removeCharacter.bind(this);
+    //this.addCharacter = this.addCharacter.bind(this);
+    //this.removeCharacter = this.removeCharacter.bind(this);
   }
 
-  addCharacter(character){
-    this.setState({
-      characters: this.state.characters.concat([character])
-    });
-  }
+  // addCharacter(character){
+  //   this.setState({
+  //     characters: this.state.characters.concat([character])
+  //   });
+  // }
 
-  removeCharacter(event){
-    let c = parseInt(event.target.dataset.id);
-    const newCharacters = this.state.characters.filter( char => char.id !== c);
-    this.setState({
-      characters: newCharacters
-    });
-  }
+  // removeCharacter(event){
+  //   let c = parseInt(event.target.dataset.id);
+  //   const newCharacters = this.state.characters.filter( char => char.id !== c);
+  //   this.setState({
+  //     characters: newCharacters
+  //   });
+  // }
 
   render() {
     return (
       <div className="App">
         <Nav/>
         <div className="container">
-          <Characters chars={this.state.characters} removeCharacter={this.removeCharacter}/>
-          <Search add={this.addCharacter} />
+          <Characters />
+          <Search />
         </div>
       </div>
     );

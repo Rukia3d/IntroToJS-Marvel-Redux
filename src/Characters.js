@@ -1,12 +1,14 @@
 import React from 'react';
 import ShowCharacters from './ShowCharacters';
+import { connect } from 'react-redux';
 
 
 const Characters = (props) => (
   <div data-testid="characters" className="row">
-   {props.chars.length>0
-     ? <ShowCharacters chars={props.chars} removeCharacter={props.removeCharacter}/>
-     : <NoCharacters /> }
+   {props.hasChars
+     ? <ShowCharacters />
+     : <NoCharacters />
+  }
   </div>
 );
 
@@ -20,4 +22,8 @@ const NoCharacters = (props) => (
     </div>
 );
 
-export default Characters;
+function mapStateToProps(state){
+  return { hasChars: state.team.length>0 }
+}
+
+export default connect(mapStateToProps)(Characters);

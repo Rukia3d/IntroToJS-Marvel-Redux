@@ -1,30 +1,47 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { removeCharacter } from './redux/actions';
 const groupSize = 3;
 
-const Character = (props) => (
-  <div className="card text-white bg-primary mb-3"
-      style={{maxWidth: "20rem"}}
-      data-testid="character">
-    <div className="card-body">
-      <h4 className="card-title" data-testid="name">{props.character.name}</h4>
-        <img
-          style={{maxWidth: "18rem"}}
-          data-testid="picture"
-          alt={props.character.name}
-          src={props.character.thumbnail.path+"."+props.character.thumbnail.extension}
-        />
-      <p className="card-text" data-testid="descr">{props.character.description}</p>
-      <button
-        className="btn btn-outline-secondary"
-        data-testid="deleteButton"
-        data-id={props.character.id} 
-        onClick={props.removeCharacter}
-      >
-        Delete
-      </button>
+class Character extends Component {
+  constructor(props){
+    super(props);
+    this.remove = this.remove.bind(this);
+  }
+
+  remove(){
+    this.props.dispatch(removeCharacter(this.props.character.id))
+  }
+  render(){
+    const char = this.props.character;
+    return (
+    <div className="card text-white bg-primary mb-3"
+        style={{maxWidth: "20rem"}}
+        data-testid="character">
+      <div className="card-body">
+        <h4 className="card-title" data-testid="name">{char.name}</h4>
+          <img
+            style={{maxWidth: "18rem"}}
+            data-testid="picture"
+            alt={char.name}
+            src={char.thumbnail.path+"."+char.thumbnail.extension}
+          />
+        <p className="card-text" data-testid="descr">{char.description}</p>
+        <button
+          className="btn btn-outline-secondary"
+          data-testid="deleteButton"
+          data-id={char.id}
+          onClick={this.remove}
+        >
+          Delete
+        </button>
+      </div>
     </div>
-  </div>
-);
+  )
+  }
+};
+
+const ConnectedCharacter = connect()(Character);
 
 class ShowCharacters extends Component{
   constructor(){
@@ -70,7 +87,7 @@ class ShowCharacters extends Component{
       {
         chars.map(c => (
             <div className="bs-component" key={c.id}>
-              <Character character={c} removeCharacter={this.props.removeCharacter}/>
+              <ConnectedCharacter character={c} />
             </div>
           ))
       }
@@ -98,4 +115,8 @@ class ShowCharacters extends Component{
 
 }
 
-export default ShowCharacters;
+function mapStateToProps(state){
+  return { chars: state.team }
+}
+
+export default connect(mapStateToProps)(ShowCharacters);

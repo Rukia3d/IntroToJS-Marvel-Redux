@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
-import request from './data/captain.json';
-
-const apiKey = '4349118c475b4f8fc68c3a2f780946b5';
-const searchURL = `https://gateway.marvel.com:443/v1/public/characters?apikey=${apiKey}&`;
+import { connect } from 'react-redux';
+import { searchWordEntered, startSearch, addCharacter } from './redux/actions';
 
 const highlightOriginal = [];
 const highlightBrackets = ['(', ')'];
@@ -37,10 +35,8 @@ class Search extends Component {
   constructor(props){
     super(props);
     this.state = {
-      results: null,
-      query: "",
-      loading: false,
-      highlight: false
+      highlight: false,
+      query:"",
     }
     this.search = this.search.bind(this);
     this.saveQuery = this.saveQuery.bind(this);
@@ -61,62 +57,50 @@ class Search extends Component {
     }
   }
 
+  // REDUX ACTION 2
   search(event){
     event.preventDefault();
-    this.setState({
-      loading: true
-    });
-    const query = this.state.query;
-    window.fetch(searchURL+'nameStartsWith='+encodeURIComponent(query))
-    .then(response => response.json())
-    .then(json => {
-      this.setState({
-        results: json.data.results,
-        loading: false
-      });
-    })
-
+    this.props.dispatch(startSearch(this.state.query));
   }
 
+  // REDUX Action 1
   saveQuery(event){
     this.setState({
-      query: event.target.value
-    });
+      query:event.target.value
+    })
+    //this.props.dispatch(searchWordEntered(event.target.value));
   }
 
-  removeResult(r){
-    const newResult = this.state.results.filter( res => res.id !== r);
-    this.setState({
-      results: newResult
-    });
-  }
+  // removeResult(r){
+  //   const newResult = this.props.results.filter( res => res.id !== r);
+  //   this.setState({
+  //     results: newResult
+  //   });
+  // }
 
   update(event){
     const charID = parseInt(event.target.dataset.id);
-    this.removeResult(charID);
-
-    const character = this.state.results.find(c => c.id === charID);
-    this.props.add(character);
+    this.props.dispatch(addCharacter(charID));
   }
 
 
   results(){
-    return this.state.results.map(c =>
+    return this.props.results.map(c =>
       <Item highlights={this.highlights()} charData={c} key={c.id} onClick={this.update} />
     )
   }
 
   renderResults(){
+    if (this.props.results.length === 0) { return null; }
+
     return (
-      this.state.results
-        ? <div data-testid="searchRes" className="col-lg-10 noIdent">
-              <div className="bs-component">
-                <ul className="list-group">
-                  {this.results()}
-                </ul>
-              </div>
-            </div>
-        : null
+      <div data-testid="searchRes" className="col-lg-10 noIdent">
+        <div className="bs-component">
+          <ul className="list-group">
+            {this.results()}
+          </ul>
+        </div>
+      </div>
     )
   }
 
@@ -130,6 +114,7 @@ class Search extends Component {
               <input
                 className="form-control form-control-lg"
                 onChange={this.saveQuery}
+                value={this.state.query}
                 placeholder="Search for Character by Name"
                 data-testid="search"
                 type="text" required/>
@@ -145,7 +130,7 @@ class Search extends Component {
             </div>
           </div>
         </form>
-        {this.state.loading
+        {this.props.loading
           ? <div className="col-lg-12">
             <div className="bs-component">
               <div className="progress">
@@ -168,4 +153,10 @@ class Search extends Component {
   }
 }
 
-export default Search;
+function mapStateToProps(state){
+  const teamIds = state.team.map(char => char.id);
+  const filteredResults = state.results.filter(char => !teamIds.includes(char.id));
+  return {loading: state.loading, results: filteredResults };
+}
+
+export default connect(mapStateToProps)(Search);

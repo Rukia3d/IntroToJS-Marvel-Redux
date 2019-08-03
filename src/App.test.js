@@ -1,4 +1,6 @@
 import React from 'react';
+import { Provider } from "react-redux";
+import store from "./redux/store";
 import {render, fireEvent, cleanup} from 'react-testing-library';
 import 'jest-dom/extend-expect';
 import * as dom from 'dom-testing-library';
@@ -96,7 +98,11 @@ afterEach(cleanup);
 test('renders without crashing', async () => {
 
   // expect that there are no characters by default
-  const { getByTestId, queryByTestId, queryAllByTestId, getAllByTestId } = render(<App/>);
+  const { getByTestId, queryByTestId, queryAllByTestId, getAllByTestId } = render(
+    <Provider store={store}>
+      <App />
+    </Provider>
+  );
   expect(getByTestId("characters")).toHaveTextContent("No characters");
   expect(getByTestId("search")).toBeTruthy();
   expect(getByTestId("searchBtn")).toBeTruthy();
